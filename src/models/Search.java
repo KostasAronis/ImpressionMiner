@@ -2,6 +2,7 @@ package models;
 
 import java.util.List;
 
-class Search {
+public class Search {
+    Integer id;
     List<Work> works;
 }

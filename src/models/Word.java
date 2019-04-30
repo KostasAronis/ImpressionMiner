@@ -1,6 +1,7 @@
 package models;
 
-class Word {
+public class Word {
+    Integer id;
     String word;
     Integer count;
     Integer impression;
