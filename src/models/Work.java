@@ -1,17 +1,29 @@
 package models;
 
-import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Work {
-    Integer id;
-    String url;
-    Date startDate;
-    Date endDate;
-    String status;
-    List<Word> words;
-    public void W(){
-        this.id=4;
-        this.words.get(1).count=4;
+    public Integer id;
+    public String url;
+    public Date startDate;
+    public Date endDate;
+    public Status status;
+    public List<Word> words;
+    public Work(String url, List<Word> words){
+        this.startDate = new Date();
+        this.url = url;
+        this.status=Status.PENDING;
+        this.words=words;
+    }
+    public static IWorkFactory simpleWorkMaker(){
+        return new SimpleWorkMaker();
+    }
+}
+class SimpleWorkMaker implements IWorkFactory{
+    @Override
+    public Work CreateWork(String url, List<Word> words) {
+        return new Work(url, words);
     }
 }
