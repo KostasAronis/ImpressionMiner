@@ -5,9 +5,9 @@ import java.lang.reflect.Method;
 public class MenuItem
 {
     private Object obj;
-	private String label;
-	private String target;
-	private boolean isExitItem;
+    private String label;
+    private String target;
+    private boolean isExitItem;
 
     public MenuItem(String label) { this(label, null, null); }
 
@@ -16,7 +16,7 @@ public class MenuItem
         this.label = label;
         this.obj = obj;
         this.target = target;
-	}
+    }
     public String getLabel()
     {
         return this.label;
@@ -32,16 +32,16 @@ public class MenuItem
     {
         if (this.target == null) 
             return;
-		
+        
         try 
         {
-			Method method = this.obj.getClass().getMethod(this.target);
-			method.invoke(this.obj);
-		}
+            Method method = this.obj.getClass().getMethod(this.target);
+            method.invoke(this.obj);
+        }
         catch (Exception ex) 
         { 
             ex.printStackTrace(); 
         }
-	}
+    }
 
 }
