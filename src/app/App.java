@@ -6,9 +6,12 @@ import java.util.List;
 import menu.Menu;
 import menu.MenuItem;
 import models.*;
+import worker.Worker;
+import scraper.Parser;
+import scraper.Evaluator;
 public class App {
     private static final String[] urls = { 
-        "www.in.gr",
+        "https://www.in.gr",
         "https://finance.yahoo.com/tech/",
         "https://www.theverge.com/tech",
         "https://www.bbc.com/news/technology",
@@ -21,9 +24,16 @@ public class App {
         "Samsung"
     };
     public static void main(String[] args) throws Exception {
-        new App().mainMenu();
+        //new App().mainMenu();
         //System.out.println("Hello Java");
-        //List<Work> works = GenerateWork(urls, searchWords, Work.simpleWorkMaker(), Word.simpleWordMaker());
+        List<Work> works = GenerateWork(urls, searchWords, Work.simpleWorkMaker(), Word.simpleWordMaker());
+        Parser p = new Parser();
+        Evaluator e = new Evaluator();
+        for (Work w : works) {
+            Worker worker = new Worker(p,e,w);
+            Thread t = new Thread(worker);
+            t.start();
+        }
     }
     private void mainMenu() 
     {
@@ -57,6 +67,7 @@ public class App {
                 words.add(word);
             }
             Work work = workMaker.CreateWork(url, words);
+            works.add(work);
         }
         return works;
     }

@@ -4,22 +4,18 @@ import java.io.IOException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
-public class Parser {
-    public Document readUrl(String s) throws IOException {
+public class Parser implements IParser {
+    public String getPageText(String url) throws IOException {
         Document doc;
+        String text;
         try {
-            doc = Jsoup.connect(s).get();
-            // String title = doc.title();
-            // System.out.println(title);
-            // Element body = doc.body();
-            // for (Element headline : body.select("a[href]"))
-            //     System.out.println(headline.text());
+            doc = Jsoup.connect(url).get();
+            text = doc.text();
         } catch (IOException e) {
             throw e;
         }
-        return doc;
+        return text;
     }
     
 }
