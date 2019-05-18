@@ -2,9 +2,18 @@
     "configurations": [
         {
             "type": "java",
-            "name": "CodeLens (Launch) - App",
+            "name": "Debug (Launch) - External Terminal",
             "request": "launch",
-            "mainClass": "app.App"
+            "console": "externalTerminal",
+            "mainClass": "app.App",
         }
+
+        
+        // {
+        //     "type": "java",
+        //     "name": "CodeLens (Launch) - App",
+        //     "request": "launch",
+        //     "mainClass": "app.App",
+        // }
     ]
 }

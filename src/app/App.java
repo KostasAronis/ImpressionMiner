@@ -2,6 +2,9 @@ package app;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import menu.Menu;
+import menu.MenuItem;
 import models.*;
 public class App {
     private static final String[] urls = { 
@@ -18,9 +21,33 @@ public class App {
         "Samsung"
     };
     public static void main(String[] args) throws Exception {
-        System.out.println("Hello Java");
-        List<Work> works = GenerateWork(urls, searchWords, Work.simpleWorkMaker(), Word.simpleWordMaker());
+        new App().mainMenu();
+        //System.out.println("Hello Java");
+        //List<Work> works = GenerateWork(urls, searchWords, Work.simpleWorkMaker(), Word.simpleWordMaker());
     }
+    private void mainMenu() 
+    {
+		Menu menu = new Menu();
+		menu.setTitle("Impression Miner Main Menu");
+		menu.addItem(new MenuItem("Option A", this, "subMenuA"));
+		menu.addItem(new MenuItem("Option B", this, "subMenuB"));
+		menu.execute();
+    }
+    public void subMenuA() 
+    {
+		Menu menu = new Menu();
+		menu.setTitle("*** Sub Menu A ***");
+        menu.addItem(new MenuItem("Option Aa"));
+		menu.execute();
+	}
+	
+    public void subMenuB() 
+    {
+		Menu menu = new Menu();
+		menu.setTitle("*** Sub Menu B ***");
+		menu.execute();
+    }
+
     static List<Work> GenerateWork(String[] urls, String[] searchWords, IWorkFactory workMaker, IWordFactory wordMaker){
         List<Work> works = new ArrayList<Work>();
         for (String url : urls) {
