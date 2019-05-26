@@ -25,14 +25,8 @@ public class App {
         "Samsung"
     };
     public static void main(String[] args) throws Exception {
-        //new App().mainMenu();
-        //System.out.println("Hello Java");
-        List<Work> works = GenerateWork(urls, searchWords, Work.simpleWorkMaker(), Word.simpleWordMaker());
-        Parser p = new Parser();
-        Evaluator e = new Evaluator();
-        Supervisor s = new Supervisor(works, p, e);
-        Thread t = new Thread(s);
-        t.start();
+        new App().mainMenu();
+
     }
     private void mainMenu() 
     {
@@ -40,6 +34,8 @@ public class App {
         menu.setTitle("Impression Miner Main Menu");
         menu.addItem(new MenuItem("Option A", this, "subMenuA"));
         menu.addItem(new MenuItem("Option B", this, "subMenuB"));
+        menu.addItem(new menu.MenuItem("Do the work", this, "doTheWork"));
+        menu.addItem(new menu.MenuItem("Pause", this, "pause"));
         menu.execute();
     }
     public void subMenuA() 
@@ -56,7 +52,22 @@ public class App {
         menu.setTitle("*** Sub Menu B ***");
         menu.execute();
     }
-
+    Supervisor s;
+    public void doTheWork() 
+    {
+        Menu menu = new Menu();
+        menu.setTitle("*** Processing ***");
+        List<Work> works = GenerateWork(urls, searchWords, Work.simpleWorkMaker(), Word.simpleWordMaker());
+        Parser p = new Parser();
+        Evaluator e = new Evaluator();
+        s = new Supervisor(works, p, e);
+        Thread t = new Thread(s);
+        t.start();
+        menu.execute();
+    }
+    public void pause(){
+        s.pause();
+    }
     static List<Work> GenerateWork(String[] urls, String[] searchWords, IWorkFactory workMaker, IWordFactory wordMaker){
         List<Work> works = new ArrayList<Work>();
         for (String url : urls) {
