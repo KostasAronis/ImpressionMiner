@@ -48,10 +48,9 @@ public class Worker implements Runnable{
                             //HANDLE InterruptedException
                             e.printStackTrace();
                         }
-                    }else{
-                        word.count=this.evaluator.getWordCount(text, word.word);
-                        word.impression=this.evaluator.getImpression(text, word.word);
                     }
+                    word.count=this.evaluator.getWordCount(text, word.word);
+                    word.impression=this.evaluator.getImpression(text, word.word);
                 }
                 //THIS WOULD BE SAVING RESULT TO DB
                 System.out.println("Evaluated: "+word.word+" in: "+work.url+", found: "+word.count.toString() + " scored: " + word.impression.toString());

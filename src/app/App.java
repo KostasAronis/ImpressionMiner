@@ -35,7 +35,6 @@ public class App {
         menu.addItem(new MenuItem("Option A", this, "subMenuA"));
         menu.addItem(new MenuItem("Option B", this, "subMenuB"));
         menu.addItem(new menu.MenuItem("Do the work", this, "doTheWork"));
-        menu.addItem(new menu.MenuItem("Pause", this, "pause"));
         menu.execute();
     }
     public void subMenuA() 
@@ -57,6 +56,7 @@ public class App {
     {
         Menu menu = new Menu();
         menu.setTitle("*** Processing ***");
+        menu.addItem(new menu.MenuItem("Pause", this, "pause"));
         List<Work> works = GenerateWork(urls, searchWords, Work.simpleWorkMaker(), Word.simpleWordMaker());
         Parser p = new Parser();
         Evaluator e = new Evaluator();
@@ -66,7 +66,18 @@ public class App {
         menu.execute();
     }
     public void pause(){
+        Menu menu = new Menu();
+        menu.setTitle("*** Paused ***");
+        menu.addItem(new menu.MenuItem("Resume", this, "resume"));
         s.pause();
+        menu.execute();
+    }
+    public void resume(){
+        Menu menu = new Menu();
+        menu.setTitle("*** Processing ***");
+        menu.addItem(new menu.MenuItem("Pause", this, "pause"));
+        s.resume();
+        menu.execute();
     }
     static List<Work> GenerateWork(String[] urls, String[] searchWords, IWorkFactory workMaker, IWordFactory wordMaker){
         List<Work> works = new ArrayList<Work>();
