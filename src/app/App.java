@@ -6,6 +6,7 @@ import java.util.List;
 import menu.Menu;
 import menu.MenuItem;
 import models.*;
+import worker.Supervisor;
 import worker.Worker;
 import scraper.Parser;
 import scraper.Evaluator;
@@ -29,11 +30,9 @@ public class App {
         List<Work> works = GenerateWork(urls, searchWords, Work.simpleWorkMaker(), Word.simpleWordMaker());
         Parser p = new Parser();
         Evaluator e = new Evaluator();
-        for (Work w : works) {
-            Worker worker = new Worker(p,e,w);
-            Thread t = new Thread(worker);
-            t.start();
-        }
+        Supervisor s = new Supervisor(works, p, e);
+        Thread t = new Thread(s);
+        t.start();
     }
     private void mainMenu() 
     {
