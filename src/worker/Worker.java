@@ -23,12 +23,12 @@ public class Worker implements Runnable{
     @Override
     public void run() {
         try {
-            String text = this.parser.getPageText(work.url);
-            System.out.println("Parsed: "+work.url);
+            String text = this.parser.getPageText(work.targetWebsite.getUrl());
+            System.out.println("Parsed: "+ work.targetWebsite.getUrl());
             for(Word word : work.words){
                 word.count=this.evaluator.getWordCount(text, word.word);
                 word.impression=this.evaluator.getImpression(text, word.word);
-                System.out.println("Evaluated: "+word.word+" in: "+work.url+", found: "+word.count.toString());
+                System.out.println("Evaluated: "+word.word+" in: "+work.targetWebsite.getUrl()+", found: "+word.count.toString());
             }
         } catch (IOException e) {
             //TODO: handle exception

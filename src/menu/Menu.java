@@ -79,6 +79,10 @@ public class Menu
         
         try { 
             input = Menu.input.readLine();
+
+            if(input.equals("p"))
+                return new MenuItem(null);;
+
             int option = Integer.parseInt(input); // Throws NumberFormatException for non-numberic input
             
             if (option < 1 || option > this.getExitIndex())
@@ -97,7 +101,7 @@ public class Menu
         {
             System.out.println("\nError: '" + input + "' is not a valid menu option!");
             item = new MenuItem(null); // Return a dummy menu item which ensures it cannot be invoked
-            ConsoleUtils.pauseExecution();
+            //ConsoleUtils.pauseExecution();
         }
         catch (IOException ex) 
         {

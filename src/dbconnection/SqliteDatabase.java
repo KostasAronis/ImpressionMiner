@@ -22,6 +22,13 @@ public class SqliteDatabase
         {
             Class.forName("org.sqlite.JDBC");
             con = DriverManager.getConnection("jdbc:sqlite:ImpressionMiner.db");
+            if(TablesExist() == false)
+            {
+                CreateTargetWebSiteTable();
+                CreateWordTable();
+                CreateWorkTable();
+                CreateSearchTable();
+            }
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -34,9 +41,72 @@ public class SqliteDatabase
         con.close();
     }
 
-    public void CreateTables()
+    private boolean TablesExist()  throws SQLException
     {
+        
+        Statement stmt = GetConnection().createStatement();
+        String sql = "SELECT * FROM sqlite_master Where type = 'table' ";
+        ResultSet rs =  stmt.executeQuery(sql);
+        Integer tableCount = 0;
+        while ( rs.next() ) 
+        {
+            tableCount += 1;
+        }
+        stmt.close();
 
+        if (tableCount == 4)
+            return true;
+        else
+            return false;
+    }
+
+    private void CreateTargetWebSiteTable()
+    {
+        String query = "CREATE TABLE IF NOT EXISTS TargetWebSite "
+                    + "(Id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + "NAME           TEXT      NOT NULL)";
+        CreateTable(query);
+    }
+
+    private void CreateWorkTable()
+    {
+        String query = "CREATE TABLE IF NOT EXISTS WORK "
+        + "(Id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        + "WordId         Integer      NOT NULL"
+        + "Status         Integer      NOT NULL,"
+        + "StartDate           Date    ,"
+        + "EndDate           Date      ,"
+        + "TargetWebsiteId  Integer      NOT NULL)";
+        CreateTable(query);
+    }
+    private void CreateWordTable()
+    {
+        String query = "CREATE TABLE IF NOT EXISTS WORD "
+        + "(Id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        + "Count       Integer      ,"
+        + "Impression  Integer      ,"
+        + "Word           TEXT      NOT NULL)";
+        CreateTable(query);
+    }
+    private void CreateSearchTable()
+    {
+        String query = "CREATE TABLE IF NOT EXISTS SEARCH "
+        + "(Id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        + "WorkId           INTEGER      NOT NULL)";
+        CreateTable(query);
+    }
+
+    private void CreateTable(String query)
+    {
+        try 
+        {
+            Statement stmt = GetConnection().createStatement();
+            stmt.executeUpdate(query);
+            stmt.close();
+        } catch (SQLException e) 
+        {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        }
     }
 
     // public <T> List<T> queryAndCollect(String query, Collector col) throws SQLException 

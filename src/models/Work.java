@@ -6,24 +6,19 @@ import java.util.List;
 
 public class Work {
     public Integer id;
-    public String url;
+    public TargetWebsite targetWebsite;
     public Date startDate;
     public Date endDate;
     public Status status;
     public List<Word> words;
-    public Work(String url, List<Word> words){
+    public Work(TargetWebsite targetWebsite, List<Word> words){
         this.startDate = new Date();
-        this.url = url;
+        this.targetWebsite = targetWebsite;
         this.status=Status.PENDING;
         this.words=words;
     }
-    public static IWorkFactory simpleWorkMaker(){
+    public static IWorkFactory simpleWorkMaker()
+    {
         return new SimpleWorkMaker();
-    }
-}
-class SimpleWorkMaker implements IWorkFactory{
-    @Override
-    public Work CreateWork(String url, List<Word> words) {
-        return new Work(url, words);
     }
 }

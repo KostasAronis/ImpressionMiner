@@ -43,7 +43,7 @@ public class Evaluator implements IEvaluator {
         Integer nextQuestionMark = text.indexOf("?", index+1);
         Integer nextExclamationPoint = text.indexOf("!", index+1);
         if (nextPeriod==-1&&nextExclamationPoint==-1&&nextQuestionMark==-1){
-            return -1
+            return -1;
         }
         nextPeriod = nextPeriod >= 0 ? nextPeriod : Integer.MAX_VALUE;
         nextQuestionMark = nextQuestionMark >= 0 ? nextQuestionMark : Integer.MAX_VALUE;

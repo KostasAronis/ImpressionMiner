@@ -8,13 +8,8 @@ public class Word {
     public Word(String word){
         this.word=word;
     }
-    public static IWordFactory simpleWordMaker(){
+    public static IWordFactory simpleWordMaker()
+    {
         return new SimpleWordMaker();
-    }
-}
-class SimpleWordMaker implements IWordFactory{
-    @Override
-    public Word CreateWord(String word) {
-        return new Word(word);
     }
 }

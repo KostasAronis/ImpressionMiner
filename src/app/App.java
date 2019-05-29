@@ -3,6 +3,9 @@ package app;
 import java.util.ArrayList;
 import java.util.List;
 
+import dbconnection.SqliteDatabase;
+import dbconnection.TestThread;
+import dbconnection.TestThread2;
 import menu.Menu;
 import menu.MenuItem;
 import models.*;
@@ -24,16 +27,16 @@ public class App {
         "Samsung"
     };
     public static void main(String[] args) throws Exception {
-        //new App().mainMenu();
+        new App().mainMenu();
         //System.out.println("Hello Java");
-        List<Work> works = GenerateWork(urls, searchWords, Work.simpleWorkMaker(), Word.simpleWordMaker());
-        Parser p = new Parser();
-        Evaluator e = new Evaluator();
-        for (Work w : works) {
-            Worker worker = new Worker(p,e,w);
-            Thread t = new Thread(worker);
-            t.start();
-        }
+        // List<Work> works = GenerateWork(urls, searchWords, Work.simpleWorkMaker(), Word.simpleWordMaker());
+        // Parser p = new Parser();
+        // Evaluator e = new Evaluator();
+        // for (Work w : works) {
+        //     Worker worker = new Worker(p,e,w);
+        //     Thread t = new Thread(worker);
+        //     t.start();
+        // }
     }
     private void mainMenu() 
     {
@@ -48,6 +51,7 @@ public class App {
         Menu menu = new Menu();
         menu.setTitle("*** Sub Menu A ***");
         menu.addItem(new MenuItem("Option Aa"));
+        menu.addItem(new MenuItem("Long Task",this,"LongTimeMethod"));
         menu.execute();
     }
     
@@ -58,17 +62,26 @@ public class App {
         menu.execute();
     }
 
+    public void LongTimeMethod()
+    {
+       TestThread ts = new TestThread();
+       TestThread2 ts2 = new TestThread2();
+       ts.start();
+       ts2.start();
+    }
+
     static List<Work> GenerateWork(String[] urls, String[] searchWords, IWorkFactory workMaker, IWordFactory wordMaker){
-        List<Work> works = new ArrayList<Work>();
-        for (String url : urls) {
-            List<Word> words = new ArrayList<Word>();
-            for (String searchWord : searchWords){
-                Word word = wordMaker.CreateWord(searchWord);
-                words.add(word);
-            }
-            Work work = workMaker.CreateWork(url, words);
-            works.add(work);
-        }
-        return works;
+        // List<Work> works = new ArrayList<Work>();
+        // for (String url : urls) {
+        //     List<Word> words = new ArrayList<Word>();
+        //     for (String searchWord : searchWords){
+        //         Word word = wordMaker.CreateWord(searchWord);
+        //         words.add(word);
+        //     }
+        //     Work work = workMaker.CreateWork(url, words);
+        //     works.add(work);
+        // }
+        // return works;
+        return null;
     }
 }
