@@ -9,6 +9,7 @@ import dbconnection.TestThread2;
 import menu.Menu;
 import menu.MenuItem;
 import models.*;
+import worker.Supervisor;
 import worker.Worker;
 import scraper.Parser;
 import scraper.Evaluator;
@@ -28,6 +29,7 @@ public class App {
     };
     public static void main(String[] args) throws Exception {
         new App().mainMenu();
+<<<<<<< HEAD
         //System.out.println("Hello Java");
         // List<Work> works = GenerateWork(urls, searchWords, Work.simpleWorkMaker(), Word.simpleWordMaker());
         // Parser p = new Parser();
@@ -37,6 +39,9 @@ public class App {
         //     Thread t = new Thread(worker);
         //     t.start();
         // }
+=======
+
+>>>>>>> dc9f0d410ca754423ea3bfbfead7b77c60574d88
     }
     private void mainMenu() 
     {
@@ -44,6 +49,7 @@ public class App {
         menu.setTitle("Impression Miner Main Menu");
         menu.addItem(new MenuItem("Option A", this, "subMenuA"));
         menu.addItem(new MenuItem("Option B", this, "subMenuB"));
+        menu.addItem(new menu.MenuItem("Do the work", this, "doTheWork"));
         menu.execute();
     }
     public void subMenuA() 
@@ -61,6 +67,7 @@ public class App {
         menu.setTitle("*** Sub Menu B ***");
         menu.execute();
     }
+<<<<<<< HEAD
 
     public void LongTimeMethod()
     {
@@ -70,6 +77,36 @@ public class App {
        ts2.start();
     }
 
+=======
+    Supervisor s;
+    public void doTheWork() 
+    {
+        Menu menu = new Menu();
+        menu.setTitle("*** Processing ***");
+        menu.addItem(new menu.MenuItem("Pause", this, "pause"));
+        List<Work> works = GenerateWork(urls, searchWords, Work.simpleWorkMaker(), Word.simpleWordMaker());
+        Parser p = new Parser();
+        Evaluator e = new Evaluator();
+        s = new Supervisor(works, p, e);
+        Thread t = new Thread(s);
+        t.start();
+        menu.execute();
+    }
+    public void pause(){
+        Menu menu = new Menu();
+        menu.setTitle("*** Paused ***");
+        menu.addItem(new menu.MenuItem("Resume", this, "resume"));
+        s.pause();
+        menu.execute();
+    }
+    public void resume(){
+        Menu menu = new Menu();
+        menu.setTitle("*** Processing ***");
+        menu.addItem(new menu.MenuItem("Pause", this, "pause"));
+        s.resume();
+        menu.execute();
+    }
+>>>>>>> dc9f0d410ca754423ea3bfbfead7b77c60574d88
     static List<Work> GenerateWork(String[] urls, String[] searchWords, IWorkFactory workMaker, IWordFactory wordMaker){
         // List<Work> works = new ArrayList<Work>();
         // for (String url : urls) {

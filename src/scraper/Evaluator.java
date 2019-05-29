@@ -1,14 +1,52 @@
 package scraper;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Document;
 
-public class Evaluator implements IEvaluator {
 
+class EvaluationWeights{
+/*
+        The following three resources are used in the evaluation algorithm
+        and are provided as an example, they are in no way complete, well weighted
+        or even remotely sufficient.
+    */
+    static Map<String,Double> wordValue = new HashMap<String,Double>()
+    {
+        {
+            put("good", 1.0);
+            put("bad", -1.0);
+            put("great", 5.0);
+            put("terrible", -5.0);
+            put("awesome", 10.0);
+            put("aweful", -10.0);
+        }
+    };
+    static Map<String,Double> wordΜultiplier=new HashMap<String,Double>()
+    {
+        {
+            put("really", 2.0);
+            put("very", 3.0);
+            put("not", -1.0);
+        }
+    };
+    static List<String> noiseWords = new ArrayList<String>(){
+        {
+            add("the");
+            add("that");
+            add("all");
+        }
+    };
+}
+
+public class Evaluator implements IEvaluator {
+    
     @Override
     public Integer getWordCount(String text, String word) {
         Pattern pattern = Pattern.compile(word);
@@ -20,34 +58,63 @@ public class Evaluator implements IEvaluator {
     }
 
     @Override
-    public Integer getImpression(String text, String word) {
-
-        return null;
+    public Double getImpression(String text, String word) {
+        Double score=0.0;
+        for (String sentence : this.getSentences(text,word)) {
+            List<String> sentenceWords=this.getSentenceWords(sentence);
+            Double sentenceValue = this.getSentenceValue(sentenceWords, EvaluationWeights.wordValue, EvaluationWeights.wordΜultiplier, EvaluationWeights.noiseWords);
+            score+=sentenceValue;
+        }
+        return score;
     }
-    private List<String> getSentenceWords(String text, Integer index){
-        ArrayList<String> sentenceWords = new ArrayList<String>();
-        Integer punctuation = getNextPunctuation(text,0);
-        Integer nextPunctuation = getNextPunctuation(text, punctuation+1);
-        while(nextPunctuation<index){
-            punctuation=nextPunctuation;
-            nextPunctuation=text.indexOf(".", punctuation+1);
-        }
-        if (punctuation != -1 && nextPunctuation != -1){
-            String sentence = text.substring(punctuation+1, nextPunctuation);
-            //sentenceWords = sentence.split(" ");//TODO: NEED A REGEX FOR COMMA OR WHITESPACE
-        }
+    private List<String> getSentences(String text,String word){
+        List<String> sentences = new ArrayList<String>();
+        String regex = "[^.]* "+word+" [^.]*\\.";
+        String string = "As she did so, a most extraordinary thing happened. The bed-clothes gathered themselves together, leapt up suddenly into a sort of peak, and then jumped headlong over the bottom rail.It was exactly as if a hand had clutched them in the centre and flung them aside. Immediately after, .........";
+        String subst = "";
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+        Matcher matcher = pattern.matcher(text);
+        int count = 0;
+        while (matcher.find())
+            sentences.add(matcher.group());
+        return sentences;
+    }
+    private List<String> getSentenceWords(String sentence){
+        String[] words = sentence.split("\\W+"); // seperate the sentence into words
+        List<String> sentenceWords = Arrays.asList(words);
         return sentenceWords;
     }
+<<<<<<< HEAD
     private Integer getNextPunctuation(String text, Integer index){
         Integer nextPeriod = text.indexOf(".", index+1);
         Integer nextQuestionMark = text.indexOf("?", index+1);
         Integer nextExclamationPoint = text.indexOf("!", index+1);
         if (nextPeriod==-1&&nextExclamationPoint==-1&&nextQuestionMark==-1){
             return -1;
+=======
+    private Double getSentenceValue(List<String> sentence,
+                                    Map<String,Double> wordValue,
+                                    Map<String,Double> wordΜultiplier,
+                                    List<String> noiseWords){
+        Double score = 0.0;
+        Double multiplier = 1.0;
+        Double wordGap = 0.0;
+        for (String word : sentence) {
+            if(wordValue.containsKey(word)){
+                score += (multiplier/1+wordGap)*wordValue.get(word);
+                multiplier=1.0;
+                wordGap=0.0;
+            } else {
+                if(wordΜultiplier.containsKey(word)){
+                    multiplier*=wordΜultiplier.get(word);
+                } else {
+                    if(!noiseWords.contains(word)){
+                        wordGap+=1;
+                    }
+                }
+            }
+>>>>>>> dc9f0d410ca754423ea3bfbfead7b77c60574d88
         }
-        nextPeriod = nextPeriod >= 0 ? nextPeriod : Integer.MAX_VALUE;
-        nextQuestionMark = nextQuestionMark >= 0 ? nextQuestionMark : Integer.MAX_VALUE;
-        nextExclamationPoint = nextExclamationPoint >= 0 ? nextExclamationPoint : Integer.MAX_VALUE;
-        return Math.min(Math.min(nextPeriod,nextQuestionMark),nextExclamationPoint);
+        return score;
     }
 }
