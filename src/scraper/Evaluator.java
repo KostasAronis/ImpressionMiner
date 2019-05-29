@@ -84,14 +84,7 @@ public class Evaluator implements IEvaluator {
         List<String> sentenceWords = Arrays.asList(words);
         return sentenceWords;
     }
-<<<<<<< HEAD
-    private Integer getNextPunctuation(String text, Integer index){
-        Integer nextPeriod = text.indexOf(".", index+1);
-        Integer nextQuestionMark = text.indexOf("?", index+1);
-        Integer nextExclamationPoint = text.indexOf("!", index+1);
-        if (nextPeriod==-1&&nextExclamationPoint==-1&&nextQuestionMark==-1){
-            return -1;
-=======
+
     private Double getSentenceValue(List<String> sentence,
                                     Map<String,Double> wordValue,
                                     Map<String,Double> wordΜultiplier,
@@ -113,7 +106,6 @@ public class Evaluator implements IEvaluator {
                     }
                 }
             }
->>>>>>> dc9f0d410ca754423ea3bfbfead7b77c60574d88
         }
         return score;
     }

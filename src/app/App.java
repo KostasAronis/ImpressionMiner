@@ -29,19 +29,6 @@ public class App {
     };
     public static void main(String[] args) throws Exception {
         new App().mainMenu();
-<<<<<<< HEAD
-        //System.out.println("Hello Java");
-        // List<Work> works = GenerateWork(urls, searchWords, Work.simpleWorkMaker(), Word.simpleWordMaker());
-        // Parser p = new Parser();
-        // Evaluator e = new Evaluator();
-        // for (Work w : works) {
-        //     Worker worker = new Worker(p,e,w);
-        //     Thread t = new Thread(worker);
-        //     t.start();
-        // }
-=======
-
->>>>>>> dc9f0d410ca754423ea3bfbfead7b77c60574d88
     }
     private void mainMenu() 
     {
@@ -67,7 +54,6 @@ public class App {
         menu.setTitle("*** Sub Menu B ***");
         menu.execute();
     }
-<<<<<<< HEAD
 
     public void LongTimeMethod()
     {
@@ -76,8 +62,6 @@ public class App {
        ts.start();
        ts2.start();
     }
-
-=======
     Supervisor s;
     public void doTheWork() 
     {
@@ -106,7 +90,6 @@ public class App {
         s.resume();
         menu.execute();
     }
->>>>>>> dc9f0d410ca754423ea3bfbfead7b77c60574d88
     static List<Work> GenerateWork(String[] urls, String[] searchWords, IWorkFactory workMaker, IWordFactory wordMaker){
         // List<Work> works = new ArrayList<Work>();
         // for (String url : urls) {
