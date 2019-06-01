@@ -1,9 +1,6 @@
 package worker;
 
 import java.io.IOException;
-import java.util.List;
-
-import org.jsoup.nodes.Document;
 
 import models.Word;
 import models.Work;

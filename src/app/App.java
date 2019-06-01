@@ -1,11 +1,10 @@
 package app;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import dbconnection.SqliteDatabase;
-import dbconnection.TestThread;
-import dbconnection.TestThread2;
 import menu.Menu;
 import menu.MenuItem;
 import models.*;
@@ -14,7 +13,7 @@ import worker.Worker;
 import scraper.Parser;
 import scraper.Evaluator;
 public class App {
-    private static final String[] urls = { 
+    private static List<String> urls = Arrays.asList(new String[]{ 
         "https://www.in.gr",
         "https://finance.yahoo.com/tech/",
         "https://www.theverge.com/tech",
@@ -22,48 +21,78 @@ public class App {
         "https://www.cnet.com/news/",
         "https://www.gadgetsnow.com/tech-news",
         "https://www.technewsworld.com/"
-    };
-    private static final String[] searchWords= { 
+    });
+    private static List<String> searchWords = Arrays.asList(new String[]{
         "Apple",
         "Samsung"
-    };
+    }); 
     public static void main(String[] args) throws Exception {
         new App().mainMenu();
     }
-    private void mainMenu() 
+    Menu mainMenu;
+    Menu manageKeywordsMenu;
+    Menu manageTargetsMenu;
+    Menu addKeywordMenu;
+    Menu showKeywordsMenu;
+    public void mainMenu() 
     {
-        Menu menu = new Menu();
-        menu.setTitle("Impression Miner Main Menu");
-        menu.addItem(new MenuItem("Option A", this, "subMenuA"));
-        menu.addItem(new MenuItem("Option B", this, "subMenuB"));
-        menu.addItem(new menu.MenuItem("Do the work", this, "doTheWork"));
-        menu.execute();
+        if (mainMenu==null){
+            Menu menu = new Menu();
+            menu.setTitle("Impression Miner Main Menu");
+            menu.addItem(new MenuItem("Manage Keywords",this, "manageKeywords"));
+            menu.addItem(new MenuItem("Manage Target Websites", this, "manageTargets"));
+            menu.addItem(new menu.MenuItem("Start the search", this, "startTheSearch"));
+            mainMenu=menu;
+        }
+        mainMenu.execute();
     }
-    public void subMenuA() 
-    {
-        Menu menu = new Menu();
-        menu.setTitle("*** Sub Menu A ***");
-        menu.addItem(new MenuItem("Option Aa"));
-        menu.addItem(new MenuItem("Long Task",this,"LongTimeMethod"));
-        menu.execute();
+    public void manageKeywords(){
+        if(manageKeywordsMenu == null){
+            Menu menu = new Menu();
+            menu.setTitle("Manage Keywords");
+            menu.addItem(new MenuItem("Add Keyword",this, "addKeyword"));
+            menu.addItem(new MenuItem("Show Keywords",this, "showKeywords"));
+            menu.addItem(new MenuItem("MainMenu", this, "mainMenu"));
+            manageKeywordsMenu=menu;
+        }
+        manageKeywordsMenu.execute();
     }
-    
-    public void subMenuB() 
-    {
-        Menu menu = new Menu();
-        menu.setTitle("*** Sub Menu B ***");
-        menu.execute();
+    public void addKeyword(){
+        System.out.print("Enter a new word:");
+        String input = System.console().readLine();
+        searchWords.add(input);
+        manageKeywords();
     }
-
-    public void LongTimeMethod()
-    {
-       TestThread ts = new TestThread();
-       TestThread2 ts2 = new TestThread2();
-       ts.start();
-       ts2.start();
+    public void showKeywords(){
+        System.out.println("Current keywords are:");
+        for (String word : searchWords){
+            System.out.println(word);
+        }
+        manageKeywords();
+    }
+    public void manageTargets(){
+        if(manageTargetsMenu==null){
+            Menu menu = new Menu();
+            menu.setTitle("Manage Target Websites");
+            manageTargetsMenu=menu;
+        }
+        manageTargetsMenu.execute();
+    }
+    public void addTarget(){
+        System.out.print("Enter a new target url:");
+        String input = System.console().readLine();
+        urls.add(input);
+        manageKeywords();
+    }
+    public void showTargets(){
+        System.out.println("Current target websites are:");
+        for (String url : urls){
+            System.out.println(url);
+        }
+        manageKeywords();
     }
     Supervisor s;
-    public void doTheWork() 
+    public void startTheSearch() 
     {
         Menu menu = new Menu();
         menu.setTitle("*** Processing ***");
@@ -90,7 +119,7 @@ public class App {
         s.resume();
         menu.execute();
     }
-    static List<Work> GenerateWork(String[] urls, String[] searchWords, IWorkFactory workMaker, IWordFactory wordMaker){
+    static List<Work> GenerateWork(List<String> urls, List<String> searchWords, IWorkFactory workMaker, IWordFactory wordMaker){
         List<Work> works = new ArrayList<Work>();
         for (String url : urls) {
             TargetWebsite tw = new TargetWebsite(0, url);
