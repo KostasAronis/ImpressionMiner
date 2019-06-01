@@ -8,9 +8,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jsoup.nodes.Document;
-
-
 class EvaluationWeights{
 /*
         The following three resources are used in the evaluation algorithm
@@ -70,11 +67,8 @@ public class Evaluator implements IEvaluator {
     private List<String> getSentences(String text,String word){
         List<String> sentences = new ArrayList<String>();
         String regex = "[^.]* "+word+" [^.]*\\.";
-        String string = "As she did so, a most extraordinary thing happened. The bed-clothes gathered themselves together, leapt up suddenly into a sort of peak, and then jumped headlong over the bottom rail.It was exactly as if a hand had clutched them in the centre and flung them aside. Immediately after, .........";
-        String subst = "";
         Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
         Matcher matcher = pattern.matcher(text);
-        int count = 0;
         while (matcher.find())
             sentences.add(matcher.group());
         return sentences;
