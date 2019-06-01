@@ -15,14 +15,20 @@ public class Supervisor implements Runnable{
 
     private Map<Worker,Thread> workers=new HashMap<Worker,Thread>();
     public void pause(){
-        for (Worker w : workers.keySet()){
-            w.pause();
+        for (Thread t : workers.values()){
+            t.suspend();
         }
+        // for (Worker w : workers.keySet()){
+        //     w.pause();
+        // }
     }
     public void resume(){
-        for (Worker w : workers.keySet()){
-            w.resume();
+        for (Thread t : workers.values()){
+            t.resume();
         }
+        // for (Worker w : workers.keySet()){
+        //     w.resume();
+        // }
     }
     public Supervisor(List<Work> works, IParser p, IEvaluator e){
         for (Work w : works) {

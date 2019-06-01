@@ -32,8 +32,25 @@ public class Worker implements Runnable{
             pauseLock.notifyAll(); // Unblocks thread
         }
     }
+
     @Override
     public void run() {
+        try {
+            String text = this.parser.getPageText(work.targetWebsite.getUrl());
+            System.out.println("Parsed: "+ work.targetWebsite.getUrl());
+            for(Word word : work.words){
+                word.count=this.evaluator.getWordCount(text, word.word);
+                word.impression=this.evaluator.getImpression(text, word.word);
+                //THIS WOULD BE SAVING RESULT TO DB
+                System.out.println("Evaluated: "+word.word+" in: "+work.targetWebsite.getUrl()+", found: "+word.count.toString() + " scored: " + word.impression.toString());
+            }
+        } catch (IOException e) {
+            //TODO: handle exception
+            e.printStackTrace();
+        }
+    }
+
+    public void run2() {
         try {
             String text = this.parser.getPageText(work.targetWebsite.getUrl());
             System.out.println("Parsed: "+ work.targetWebsite.getUrl());
