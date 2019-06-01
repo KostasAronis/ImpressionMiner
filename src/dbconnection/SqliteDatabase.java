@@ -67,7 +67,6 @@ public class SqliteDatabase
                     + "NAME           TEXT      NOT NULL)";
         CreateTable(query);
     }
-
     private void CreateWorkTable()
     {
         String query = "CREATE TABLE IF NOT EXISTS WORK "

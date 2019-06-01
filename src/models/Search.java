@@ -1,9 +1,11 @@
 package models;
 
+import java.util.Date;
 import java.util.List;
 
 public class Search 
 {
-    Integer id;
-    List<Work> works;
+    public Integer id;
+    public Date timestamp;
+    public List<Work> works;
 }
