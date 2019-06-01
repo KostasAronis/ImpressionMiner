@@ -17,8 +17,4 @@ public class Work {
         this.status=Status.PENDING;
         this.words=words;
     }
-    public static IWorkFactory simpleWorkMaker()
-    {
-        return new SimpleWorkMaker();
-    }
 }

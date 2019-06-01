@@ -8,8 +8,4 @@ public class Word {
     public Word(String word){
         this.word=word;
     }
-    public static IWordFactory simpleWordMaker()
-    {
-        return new SimpleWordMaker();
-    }
 }

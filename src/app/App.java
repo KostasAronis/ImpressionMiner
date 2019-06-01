@@ -68,7 +68,7 @@ public class App {
         Menu menu = new Menu();
         menu.setTitle("*** Processing ***");
         menu.addItem(new menu.MenuItem("Pause", this, "pause"));
-        List<Work> works = GenerateWork(urls, searchWords, Work.simpleWorkMaker(), Word.simpleWordMaker());
+        List<Work> works = GenerateWork(urls, searchWords, new SimpleWorkMaker(), new SimpleWordMaker());
         Parser p = new Parser();
         Evaluator e = new Evaluator();
         s = new Supervisor(works, p, e);
