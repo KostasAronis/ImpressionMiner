@@ -91,17 +91,17 @@ public class App {
         menu.execute();
     }
     static List<Work> GenerateWork(String[] urls, String[] searchWords, IWorkFactory workMaker, IWordFactory wordMaker){
-        // List<Work> works = new ArrayList<Work>();
-        // for (String url : urls) {
-        //     List<Word> words = new ArrayList<Word>();
-        //     for (String searchWord : searchWords){
-        //         Word word = wordMaker.CreateWord(searchWord);
-        //         words.add(word);
-        //     }
-        //     Work work = workMaker.CreateWork(url, words);
-        //     works.add(work);
-        // }
-        // return works;
-        return null;
+        List<Work> works = new ArrayList<Work>();
+        for (String url : urls) {
+            TargetWebsite tw = new TargetWebsite(0, url);
+            List<Word> words = new ArrayList<Word>();
+            for (String searchWord : searchWords){
+                Word word = wordMaker.CreateWord(searchWord);
+                words.add(word);
+            }
+            Work work = workMaker.CreateWork(tw, words);
+            works.add(work);
+        }
+        return works;
     }
 }
