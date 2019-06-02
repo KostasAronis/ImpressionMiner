@@ -2,6 +2,7 @@ package app;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import dbconnection.SqliteDatabase;
@@ -13,7 +14,7 @@ import worker.Worker;
 import scraper.Parser;
 import scraper.Evaluator;
 public class App {
-    private static List<String> urls = Arrays.asList(new String[]{ 
+    private static List<String> urls = new ArrayList<String>(Arrays.asList(new String[]{ 
         "https://www.in.gr",
         "https://finance.yahoo.com/tech/",
         "https://www.theverge.com/tech",
@@ -21,11 +22,11 @@ public class App {
         "https://www.cnet.com/news/",
         "https://www.gadgetsnow.com/tech-news",
         "https://www.technewsworld.com/"
-    });
-    private static List<String> searchWords = Arrays.asList(new String[]{
+    }));
+    private static List<String> searchWords = new ArrayList<String>(Arrays.asList(new String[]{
         "Apple",
         "Samsung"
-    }); 
+    }));
     public static void main(String[] args) throws Exception {
         new App().mainMenu();
     }
@@ -97,10 +98,10 @@ public class App {
         Menu menu = new Menu();
         menu.setTitle("*** Processing ***");
         menu.addItem(new menu.MenuItem("Pause", this, "pause"));
-        List<Work> works = GenerateWork(urls, searchWords, new SimpleWorkMaker(), new SimpleWordMaker());
+        Search search = GenerateSearch(urls, searchWords, new SimpleWorkMaker(), new SimpleWordMaker());
         Parser p = new Parser();
         Evaluator e = new Evaluator();
-        s = new Supervisor(works, p, e);
+        s = new Supervisor(search, p, e);
         Thread t = new Thread(s);
         t.start();
         menu.execute();
@@ -119,7 +120,8 @@ public class App {
         s.resume();
         menu.execute();
     }
-    static List<Work> GenerateWork(List<String> urls, List<String> searchWords, IWorkFactory workMaker, IWordFactory wordMaker){
+    static Search GenerateSearch(List<String> urls, List<String> searchWords, IWorkFactory workMaker, IWordFactory wordMaker){
+        Search s = new Search();
         List<Work> works = new ArrayList<Work>();
         for (String url : urls) {
             TargetWebsite tw = new TargetWebsite(0, url);
@@ -131,6 +133,8 @@ public class App {
             Work work = workMaker.CreateWork(tw, words);
             works.add(work);
         }
-        return works;
+        s.works=works;
+        s.timestamp=new Date();
+        return s;
     }
 }
