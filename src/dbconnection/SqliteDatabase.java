@@ -64,34 +64,32 @@ public class SqliteDatabase
     {
         String query = "CREATE TABLE IF NOT EXISTS TargetWebSite "
                     + "(Id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "NAME           TEXT      NOT NULL)";
+                    + "Url           TEXT      NOT NULL)";
         CreateTable(query);
     }
     private void CreateWorkTable()
     {
-        String query = "CREATE TABLE IF NOT EXISTS WORK "
-        + "(Id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        + "WordId         Integer      NOT NULL"
-        + "Status         Integer      NOT NULL,"
-        + "StartDate           Date    ,"
-        + "EndDate           Date      ,"
-        + "TargetWebsiteId  Integer      NOT NULL)";
+        String query = "CREATE TABLE IF NOT EXISTS Work "
+        + "(Id INTEGER  NOT NULL,"
+        + "WordId         INTEGER      NOT NULL,"
+        + "TargetWebsiteId  INTEGER      NOT NULL,PRIMARY KEY(Id,WordId) )";
         CreateTable(query);
     }
     private void CreateWordTable()
     {
-        String query = "CREATE TABLE IF NOT EXISTS WORD "
+        String query = "CREATE TABLE IF NOT EXISTS Word "
         + "(Id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        + "Count       Integer      ,"
-        + "Impression  Integer      ,"
+        + "Count       INTEGER      ,"
+        + "Impression  REAL      ,"
         + "Word           TEXT      NOT NULL)";
         CreateTable(query);
     }
     private void CreateSearchTable()
     {
-        String query = "CREATE TABLE IF NOT EXISTS SEARCH "
-        + "(Id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        + "WorkId           INTEGER      NOT NULL)";
+        String query = "CREATE TABLE IF NOT EXISTS Search "
+        + "(Id              INTEGER     NOT NULL,"
+        + "Timestamp         DATE       NOT NULL,"
+        + "WorkId           INTEGER      NOT NULL , PRIMARY KEY(Id,WorkId) )";
         CreateTable(query);
     }
 

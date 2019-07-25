@@ -1,18 +1,93 @@
 package dbconnection;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import models.Word;
 
-public class WordRepository implements IRepositoryFactory<Word,Word>
+public class WordRepository implements IRepository<Word>
 {
+    private SqliteDatabase _db;
+    public WordRepository()
+    {
+        _db = new SqliteDatabase();
+    }
 
     @Override
-    public Word Get(Word arg) {
-        return null;
+    public List<Word> GetAll() {
+        List<Word> words = new ArrayList<Word>();
+        try 
+        {
+            String query = "Select * FROM Word";
+            Statement stmt = _db.GetConnection().createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) 
+            {
+                words.add(ConvertToWord(rs));
+            }
+            rs.close();
+            stmt.close();
+        } 
+        catch (SQLException e) 
+        {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+        return words;
+    }
+
+
+    @Override
+    public Word GetById(Integer id) {
+        Word word = new Word();
+        try 
+        {
+            String query = "Select * FROM Word Where Id = ?";
+            PreparedStatement stmt =  _db.GetConnection().prepareStatement(query);
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) 
+            {
+                word = ConvertToWord(rs);
+            }
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) 
+        {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        }
+        return word;
     }
 
     @Override
     public Word Insert(Word arg) {
-        return null;
+        try {
+            String query = "Insert INTO Word (Word,Count,Impression) VALUES(?,?,?)";
+            PreparedStatement stmt = _db.GetConnection().prepareStatement(query);
+            stmt.setString(1, arg.word);
+            stmt.setInt(2, arg.count);
+            stmt.setDouble(3, arg.impression);
+            Integer success = stmt.executeUpdate();
+            Integer idColVar = null;
+            ResultSet  rs = stmt.getGeneratedKeys();
+            if(success == 1)
+            {
+                while (rs.next()) 
+                {
+                     idColVar = rs.getInt(1);     
+                }
+            }
+            rs.close();
+            stmt.close();
+
+            arg = this.GetById(idColVar);
+        } catch (SQLException e) 
+        {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        }
+        return arg;
     }
 
     @Override
@@ -24,5 +99,18 @@ public class WordRepository implements IRepositoryFactory<Word,Word>
     public boolean Delete(Word arg) {
         return false;
     }
+
+    //#region Helpers
+    private Word ConvertToWord(ResultSet rs) throws SQLException {
+        return new Word
+        (
+            rs.getInt("Id"),
+            rs.getString("Word"),
+            rs.getInt("Count"),
+            rs.getDouble("Impression")
+        );
+    }
+    //#endregion
+    
 
 }

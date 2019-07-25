@@ -11,6 +11,8 @@ public class TargetWebsite
         this.Url = Url;
     }
 
+    public TargetWebsite() {   }
+
     public Integer getId()
     {
         return Id;

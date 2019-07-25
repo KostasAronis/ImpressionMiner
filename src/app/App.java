@@ -1,11 +1,20 @@
 package app;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import dbconnection.IRepository;
+import dbconnection.RepositoryFactory;
+import dbconnection.SearchRepository;
 import dbconnection.SqliteDatabase;
+import dbconnection.WordRepository;
+import dbconnection.WorkRepository;
 import menu.Menu;
 import menu.MenuItem;
 import models.*;
@@ -27,9 +36,34 @@ public class App {
         "Apple",
         "Samsung"
     }));
-    public static void main(String[] args) throws Exception {
-        new App().mainMenu();
+    public static void main(String[] args) throws Exception 
+    {
+        //new App().mainMenu();
+        IRepository<TargetWebsite> targetWebsiteRepo = RepositoryFactory.GetRepository(TargetWebsite.class);
+        IRepository<Word> wordRepo = RepositoryFactory.GetRepository(Word.class);
+        IRepository<Work> workRepo = RepositoryFactory.GetRepository(Work.class);
+        IRepository<Search> searchRepo = RepositoryFactory.GetRepository(Search.class);
+        
+        Work work = new Work();
+        work.targetWebsite = new TargetWebsite(3,"https://www.in.gr");
+        List<Word> words = new ArrayList<Word>();
+        words.add(wordRepo.GetById(2));
+        words.add(wordRepo.GetById(1));
+        work.words = words;
+        
+        var getSpecificWork = workRepo.GetById(1);
+        var getAllWorks = workRepo.GetAll();
+
+        Search search = new Search();
+        search.works = new ArrayList<>(getAllWorks);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        search.timestamp = new Date();
+        //var searchInsert = searchRepo.Insert(search);
+        var searchGetBy = searchRepo.GetById(2);
+        var searchGetAll = searchRepo.GetAll();
+
     }
+
     Menu mainMenu;
     Menu manageKeywordsMenu;
     Menu manageTargetsMenu;
@@ -134,7 +168,7 @@ public class App {
             works.add(work);
         }
         s.works=works;
-        s.timestamp=new Date();
+        s.timestamp= (java.sql.Date) new Date();
         return s;
     }
 }
