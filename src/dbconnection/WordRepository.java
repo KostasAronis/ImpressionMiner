@@ -64,11 +64,9 @@ public class WordRepository implements IRepository<Word>
     @Override
     public Word Insert(Word arg) {
         try {
-            String query = "Insert INTO Word (Word,Count,Impression) VALUES(?,?,?)";
+            String query = "Insert INTO Word (Word) VALUES(?)";
             PreparedStatement stmt = _db.GetConnection().prepareStatement(query);
             stmt.setString(1, arg.word);
-            stmt.setInt(2, arg.count);
-            stmt.setDouble(3, arg.impression);
             Integer success = stmt.executeUpdate();
             Integer idColVar = null;
             ResultSet  rs = stmt.getGeneratedKeys();
@@ -76,12 +74,11 @@ public class WordRepository implements IRepository<Word>
             {
                 while (rs.next()) 
                 {
-                     idColVar = rs.getInt(1);     
+                     idColVar = rs.getInt(1);
                 }
             }
             rs.close();
             stmt.close();
-
             arg = this.GetById(idColVar);
         } catch (SQLException e) 
         {
@@ -96,8 +93,20 @@ public class WordRepository implements IRepository<Word>
     }
 
     @Override
-    public boolean Delete(Word arg) {
-        return false;
+    public boolean Delete(Integer id) {
+        try 
+        {
+            String query = "DELETE FROM Word Where Id = ?";
+            PreparedStatement stmt = _db.GetConnection().prepareStatement(query);
+            stmt.setInt(1, id);
+            Integer result = stmt.executeUpdate();
+            stmt.close();
+            return result==1;
+        } catch (SQLException e) 
+        {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            return false;
+        }
     }
 
     //#region Helpers
@@ -105,12 +114,8 @@ public class WordRepository implements IRepository<Word>
         return new Word
         (
             rs.getInt("Id"),
-            rs.getString("Word"),
-            rs.getInt("Count"),
-            rs.getDouble("Impression")
+            rs.getString("Word")
         );
     }
     //#endregion
-    
-
 }

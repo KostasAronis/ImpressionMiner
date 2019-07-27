@@ -5,13 +5,17 @@ public class TargetWebsite
     private Integer Id;
     private String Url;
 
+    public TargetWebsite() {
+
+    }
+    public TargetWebsite(String url){
+        this.Url = url;
+    }
     public TargetWebsite(Integer Id,String Url)
     {
         this.Id = Id;
         this.Url = Url;
     }
-
-    public TargetWebsite() {   }
 
     public Integer getId()
     {

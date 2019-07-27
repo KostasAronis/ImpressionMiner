@@ -3,8 +3,6 @@ package models;
 public class Word {
     public Integer id;
     public String word;
-    public Integer count;
-    public Double impression;
 
     public Word()
     {
@@ -15,11 +13,9 @@ public class Word {
         this.word=word;
     }
 
-    public Word(Integer id,String word,Integer count,Double impression){
+    public Word(Integer id,String word){
         this.id = id;
         this.word=word;
-        this.count = count;
-        this.impression = impression;
     }
 
 }

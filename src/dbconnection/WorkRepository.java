@@ -10,6 +10,7 @@ import java.util.List;
 import models.TargetWebsite;
 import models.Word;
 import models.Work;
+import models.WorkWord;
 
 public class WorkRepository implements IRepository<Work>
 {
@@ -23,35 +24,18 @@ public class WorkRepository implements IRepository<Work>
     @Override
     public List<Work> GetAll() {
         List<Work> works = new ArrayList<Work>();
-        Work work = new Work();
-        Integer lastWorkId = -1;
         try 
         {
-            String query = "Select Work.Id,TargetWebsite.Id,TargetWebsite.Url,"
-            + "Word.Id,Word.Word,Word.Count,Word.Impression "
-            + "FROM Work "
-            + "LEFT JOIN TargetWebsite ON Work.TargetWebsiteId = TargetWebsite.Id "
-            + "LEFT JOIN Word ON Work.WordId = Word.Id";
+            String query = "Select Work.Id,TargetWebsite.Id,TargetWebsite.Url "
+            + " FROM Work "
+            + " LEFT JOIN TargetWebsite ON Work.TargetWebsiteId = TargetWebsite.Id ";
             Statement stmt = _db.GetConnection().createStatement();
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) 
             {
-                if (lastWorkId == rs.getInt(1))
-                {
-                    work.words.add(ConvertToWord(rs));
-                    lastWorkId = rs.getInt(1);
-                }
-                else
-                {
-                    if(work.id != null)
-                        works.add(work);
-
-                    work = ConvertToWork(rs);
-                    work.words.add(ConvertToWord(rs));
-                    lastWorkId = rs.getInt(1);
-                }  
+                Work work = ConvertToWork(rs);
+                works.add(work);
             }
-            works.add(work);
             rs.close();
             stmt.close();
         } 
@@ -68,21 +52,18 @@ public class WorkRepository implements IRepository<Work>
         Work work = new Work();
         try 
         {
-            String query = "Select Work.Id,TargetWebsite.Id,TargetWebsite.Url,"
-            + "Word.Id,Word.Word,Word.Count,Word.Impression "
+            String query = 
+            "Select Work.Id, TargetWebsite.Id, TargetWebsite.Url"
             + "FROM Work "
             + "LEFT JOIN TargetWebsite ON Work.TargetWebsiteId = TargetWebsite.Id "
-            + "LEFT JOIN Word ON Work.WordId = Word.Id "
             + "Where Work.Id = ?";
-            PreparedStatement stmt =  _db.GetConnection().prepareStatement(query);
+            PreparedStatement stmt = _db.GetConnection().prepareStatement(query);
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) 
             {
                 if (rs.isFirst())
                     work = ConvertToWork(rs);
-
-                work.words.add(ConvertToWord(rs));
             }
             rs.close();
             stmt.close();
@@ -97,26 +78,22 @@ public class WorkRepository implements IRepository<Work>
     public Work Insert(Work arg) 
     {
         Integer idColVar = GetLastWorkId();
-        String query = "Insert INTO Work (Id,WordId,TargetWebsiteId) VALUES(?,?,?)";
-        for (Word word : arg.words) 
+        String query = "Insert INTO Work (Id,TargetWebsiteId) VALUES(?,?)";
+        try 
         {
-            try 
-            {
-                PreparedStatement stmt = _db.GetConnection().prepareStatement(query);
-                stmt.setInt(1, idColVar);
-                stmt.setInt(2, word.id);
-                stmt.setInt(3, arg.targetWebsite.getId());
-                    
-                Integer success = stmt.executeUpdate();
-                stmt.close();
-            } 
-            catch (SQLException e) 
-            {
-                System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            }
-            
+            PreparedStatement stmt = _db.GetConnection().prepareStatement(query);
+            stmt.setInt(1, idColVar);
+            stmt.setInt(2, arg.targetWebsite.getId());
+
+            Integer success = stmt.executeUpdate();
+            stmt.close();
+        } 
+        catch (SQLException e) 
+        {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
         }
         arg.id = idColVar;
+        arg = InsertWords(arg);
         return arg;
     }
 
@@ -126,7 +103,7 @@ public class WorkRepository implements IRepository<Work>
     }
 
     @Override
-    public boolean Delete(Work arg) {
+    public boolean Delete(Integer id) {
         return false;
     }
 
@@ -152,7 +129,27 @@ public class WorkRepository implements IRepository<Work>
         }
         return nextID;
     }
-
+    private Integer GetLastWorkWordId()
+    {
+        Integer nextID = null;
+        try 
+        {
+            String query = "Select IFNULL(max(id)) FROM WorkWord";
+            Statement stmt = _db.GetConnection().createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) 
+            {
+                nextID = rs.getInt(1) + 1;
+            }
+            rs.close();
+            stmt.close();
+        } 
+        catch (SQLException e) 
+        {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+        return nextID;
+    }
     private Work ConvertToWork(ResultSet rs) throws SQLException 
     {
         Work work = new Work();
@@ -160,22 +157,68 @@ public class WorkRepository implements IRepository<Work>
         work.targetWebsite = new TargetWebsite();
         work.targetWebsite.setId(rs.getInt(2));
         work.targetWebsite.setUrl(rs.getString(3));
-        work.words = new ArrayList<Word>();
+        work.words = GatherWords(work.id);
         return work;
     }
+    private Work InsertWords(Work arg) {
+        Integer idColVar = GetLastWorkWordId();
+        List<WorkWord> wordsWithIds=new ArrayList<>();
+        String query = "Insert INTO WorkWord (Id, WorkId, WordId,Count,Impression) VALUES(?,?,?,?,?)";
+        for (WorkWord word : arg.words) {
+            try 
+            {
+                PreparedStatement stmt = _db.GetConnection().prepareStatement(query);
+                stmt.setInt(1, idColVar);
+                stmt.setInt(2, arg.id);
+                stmt.setString(3, word.word);
+                stmt.setInt(4, word.count);
+                stmt.setDouble(5, word.impression);
+                word.id=idColVar;
+                word.WorkId=arg.id;
+                Integer success = stmt.executeUpdate();
+                stmt.close();
+            } 
+            catch (SQLException e) 
+            {
+                System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            }
+        }
+        return arg;
+    }
 
-    private Word ConvertToWord(ResultSet rs) throws SQLException 
+    private WorkWord ConvertToWord(ResultSet rs) throws SQLException 
     {
-        return new Word
-        (
-            rs.getInt(4),
-            rs.getString(5),
-            rs.getInt(6),
-            rs.getDouble(7)
-        );
+        WorkWord word = new WorkWord();
+        word.id = rs.getInt(1);
+        word.WorkId = rs.getInt(2);
+        word.word = rs.getString(3);
+        word.count = rs.getInt(4);
+        word.impression = rs.getDouble(5);
+        return word;
+    }
+    private List<WorkWord> GatherWords(Integer workId){
+        List<WorkWord> words = new ArrayList<WorkWord>();
+        Integer lastWorkId = -1;
+        try 
+        {
+            String query = "Select Id, WorkId, Word, Count, Impression "
+            + " FROM WorkWord "
+            + " LEFT JOIN TargetWebsite ON Work.TargetWebsiteId = TargetWebsite.Id ";
+            Statement stmt = _db.GetConnection().createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) 
+            {
+                WorkWord word = ConvertToWord(rs);
+                words.add(word);
+            }
+            rs.close();
+            stmt.close();
+        } 
+        catch (SQLException e) 
+        {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+        return words;
     }
     //#endregion
-   
-
-
 }

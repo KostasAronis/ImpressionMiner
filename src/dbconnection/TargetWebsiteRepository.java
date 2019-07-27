@@ -95,8 +95,20 @@ public class TargetWebsiteRepository implements IRepository<TargetWebsite> {
     }
 
     @Override
-    public boolean Delete(TargetWebsite arg) {
-        throw new UnsupportedOperationException();
+    public boolean Delete(Integer id) {
+        try 
+        {
+            String query = "DELETE FROM TargetWebsite Where Id = ?";
+            PreparedStatement stmt = _db.GetConnection().prepareStatement(query);
+            stmt.setInt(1, id);
+            Integer result = stmt.executeUpdate();
+            stmt.close();
+            return result==1;
+        } catch (SQLException e) 
+        {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            return false;
+        }
     }
 
     private TargetWebsite ConvertToTargetWebsite(ResultSet rs) throws SQLException
@@ -107,4 +119,5 @@ public class TargetWebsiteRepository implements IRepository<TargetWebsite> {
             rs.getString("Url")
         );
     }
+
 }

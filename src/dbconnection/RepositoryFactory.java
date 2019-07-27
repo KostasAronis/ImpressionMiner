@@ -30,8 +30,8 @@ public class RepositoryFactory
      private static void RegisterRepositories()
      {
           repoRegistry.put(Work.class, WorkRepository.class);
-          repoRegistry.put(Word.class,  WordRepository.class);
-          repoRegistry.put(TargetWebsite.class,  TargetWebsiteRepository.class);
-          repoRegistry.put(Search.class,  SearchRepository.class);
+          repoRegistry.put(Word.class, WordRepository.class);
+          repoRegistry.put(TargetWebsite.class, TargetWebsiteRepository.class);
+          repoRegistry.put(Search.class, SearchRepository.class);
      }
 }
