@@ -8,5 +8,5 @@ public interface IRepository<T>
     T GetById(Integer id);
     T Insert(T arg);
     boolean Update(T arg);
-    boolean Delete(T arg);
+    boolean Delete(Integer id);
 }
