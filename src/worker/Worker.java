@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import models.Word;
 import models.Work;
+import models.WorkWord;
 import scraper.IEvaluator;
 import scraper.IParser;
 
@@ -35,7 +36,7 @@ public class Worker implements Runnable{
         try {
             String text = this.parser.getPageText(work.targetWebsite.getUrl());
             System.out.println("Parsed: "+ work.targetWebsite.getUrl());
-            for(Word word : work.words){
+            for(WorkWord word : work.words){
                 word.count=this.evaluator.getWordCount(text, word.word);
                 word.impression=this.evaluator.getImpression(text, word.word);
                 //THIS WOULD BE SAVING RESULT TO DB
@@ -51,7 +52,7 @@ public class Worker implements Runnable{
         try {
             String text = this.parser.getPageText(work.targetWebsite.getUrl());
             System.out.println("Parsed: "+ work.targetWebsite.getUrl());
-            for(Word word : work.words){
+            for(WorkWord word : work.words){
                 synchronized (pauseLock) {
                     if (paused){
                         try{

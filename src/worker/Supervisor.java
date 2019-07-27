@@ -5,9 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dbconnection.IRepository;
+import dbconnection.RepositoryFactory;
+import dbconnection.SearchRepository;
 import models.Search;
 import models.Word;
 import models.Work;
+import models.WorkWord;
 import scraper.IEvaluator;
 import scraper.IParser;
 
@@ -15,24 +19,20 @@ public class Supervisor implements Runnable{
 
     private Map<Worker,Thread> workers=new HashMap<Worker,Thread>();
     private Search _search;
+    private IRepository<Search> _searchRepo;
     public void pause(){
         for (Thread t : workers.values()){
             t.suspend();
         }
-        // for (Worker w : workers.keySet()){
-        //     w.pause();
-        // }
     }
     public void resume(){
         for (Thread t : workers.values()){
             t.resume();
         }
-        // for (Worker w : workers.keySet()){
-        //     w.resume();
-        // }
     }
     public Supervisor(Search s, IParser p, IEvaluator e){
         _search=s;
+        _searchRepo = new SearchRepository();
         for (Work w : s.works){
             Object pauseLock = new Object();
             Worker worker = new Worker(p, e, w, pauseLock);
@@ -54,17 +54,20 @@ public class Supervisor implements Runnable{
             }
         }
         report(_search);
+        storeResultsInDB(_search);
     }
     private void report(Search s){
         System.out.println("Final results");
         for (String line : getReportTable(s)){
             System.out.println(line);
         }
-
+    }
+    private void storeResultsInDB(Search s){
+        _searchRepo.Insert(s);
     }
     private List<String> getReportTable(Search s){
         Integer largestWord=0;
-        Map<String, Word> wordMap = getSummary(s);
+        Map<String, WorkWord> wordMap = getSummary(s);
         for (String w : wordMap.keySet()){
             if (w.length()>largestWord){
                 largestWord = w.length();
@@ -78,25 +81,24 @@ public class Supervisor implements Runnable{
         table.add(rowSeperator);
         table.add(titleRow);
         table.add(rowSeperator);
-        for (Word word : wordMap.values()){
+        for (WorkWord word : wordMap.values()){
             String str = String.format(leftAlignFormat, word.word, word.count, word.impression);
             table.add(str);
         }
         table.add(rowSeperator);
         return table;
     }
-    private Map<String, Word> getSummary(Search s){
-        Map<String, Word> wordMap = new HashMap<String, Word>();
+    private Map<String, WorkWord> getSummary(Search s){
+        Map<String, WorkWord> wordMap = new HashMap<String, WorkWord>();
         for (Work w : s.works) {
-            for (Word word: w.words){
+            for (WorkWord word: w.words){
                 if(wordMap.containsKey(word.word)){
-                    Word oldWord = wordMap.get(word.word);
-                    Word newWord = new Word( word.word );
-                    newWord.count=oldWord.count+word.count;
-                    newWord.impression=oldWord.impression+word.impression;
-                    wordMap.replace(word.word, newWord);
+                    WorkWord oldWord = wordMap.get(word.word);
+                    oldWord.count=oldWord.count+word.count;
+                    oldWord.impression=oldWord.impression+word.impression;
                 } else {
-                    Word newWord = new Word( word.word );
+                    WorkWord newWord = new WorkWord();
+                    newWord.word = word.word;
                     newWord.count = word.count;
                     newWord.impression = word.impression;
                     wordMap.put(word.word, newWord);
