@@ -53,10 +53,10 @@ public class WorkRepository implements IRepository<Work>
         try 
         {
             String query = 
-            "Select Work.Id, TargetWebsite.Id, TargetWebsite.Url"
-            + "FROM Work "
-            + "LEFT JOIN TargetWebsite ON Work.TargetWebsiteId = TargetWebsite.Id "
-            + "Where Work.Id = ?";
+            "Select Work.Id, TargetWebsite.Id, TargetWebsite.Url "
+            + " FROM Work "
+            + " LEFT JOIN TargetWebsite ON Work.TargetWebsiteId = TargetWebsite.Id "
+            + " Where Work.Id = ? ";
             PreparedStatement stmt = _db.GetConnection().prepareStatement(query);
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -113,7 +113,7 @@ public class WorkRepository implements IRepository<Work>
         Integer nextID = null;
         try 
         {
-            String query = "Select IFNULL(max(id))  FROM Work";
+            String query = "Select IFNULL(max(id),0) FROM Work";
             Statement stmt = _db.GetConnection().createStatement();
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) 
@@ -134,7 +134,7 @@ public class WorkRepository implements IRepository<Work>
         Integer nextID = null;
         try 
         {
-            String query = "Select IFNULL(max(id)) FROM WorkWord";
+            String query = "Select IFNULL(max(id),0) FROM WorkWord";
             Statement stmt = _db.GetConnection().createStatement();
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) 
@@ -161,10 +161,10 @@ public class WorkRepository implements IRepository<Work>
         return work;
     }
     private Work InsertWords(Work arg) {
-        Integer idColVar = GetLastWorkWordId();
         List<WorkWord> wordsWithIds=new ArrayList<>();
-        String query = "Insert INTO WorkWord (Id, WorkId, WordId,Count,Impression) VALUES(?,?,?,?,?)";
+        String query = "Insert INTO WorkWord (Id, WorkId, Word, Count, Impression) VALUES(?,?,?,?,?)";
         for (WorkWord word : arg.words) {
+            Integer idColVar = GetLastWorkWordId();
             try 
             {
                 PreparedStatement stmt = _db.GetConnection().prepareStatement(query);
@@ -198,14 +198,14 @@ public class WorkRepository implements IRepository<Work>
     }
     private List<WorkWord> GatherWords(Integer workId){
         List<WorkWord> words = new ArrayList<WorkWord>();
-        Integer lastWorkId = -1;
         try 
         {
             String query = "Select Id, WorkId, Word, Count, Impression "
             + " FROM WorkWord "
-            + " LEFT JOIN TargetWebsite ON Work.TargetWebsiteId = TargetWebsite.Id ";
-            Statement stmt = _db.GetConnection().createStatement();
-            ResultSet rs = stmt.executeQuery(query);
+            + " Where WorkId=? ";
+            PreparedStatement stmt = _db.GetConnection().prepareStatement(query);
+            stmt.setInt(1, workId);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) 
             {
                 WorkWord word = ConvertToWord(rs);

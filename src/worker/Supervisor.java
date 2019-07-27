@@ -55,6 +55,7 @@ public class Supervisor implements Runnable{
         }
         report(_search);
         storeResultsInDB(_search);
+        System.out.println("Results stored in db.");
     }
     private void report(Search s){
         System.out.println("Final results");

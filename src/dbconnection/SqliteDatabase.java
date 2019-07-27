@@ -72,9 +72,8 @@ public class SqliteDatabase
     private void CreateWorkTable()
     {
         String query = "CREATE TABLE IF NOT EXISTS Work "
-        + "(Id INTEGER  NOT NULL,"
-        + "WordId         INTEGER      NOT NULL,"
-        + "TargetWebsiteId  INTEGER      NOT NULL,PRIMARY KEY(Id,WordId) )";
+        + "(Id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        + "TargetWebsiteId INTEGER)";
         CreateTable(query);
     }
     private void CreateWordTable()
@@ -109,7 +108,6 @@ public class SqliteDatabase
         + "Word         STRING     NOT NULL,"
         + "Count       INTEGER      ,"
         + "Impression  REAL      ,"
-        + "FOREIGN KEY(WordId) REFERENCES Word(Id)"
         + "FOREIGN KEY(WorkId) REFERENCES Work(Id)"+
         ")";
         CreateTable(query);

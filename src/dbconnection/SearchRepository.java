@@ -29,12 +29,11 @@ public class SearchRepository implements IRepository<Search> {
     public List<Search> GetAll() {
         List<Search> searches = new ArrayList<Search>();
         try {
-            String query = "Select Search.Id,Search.Timestamp from Search ";
+            String query = "Select Id, Timestamp from Search ";
             Statement stmt = _db.GetConnection().createStatement();
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 Search search = ConvertToSearch(rs);
-                search.works.add(_workRepo.GetById(rs.getInt(3)));
             }
             rs.close();
             stmt.close();
@@ -111,11 +110,11 @@ public class SearchRepository implements IRepository<Search> {
     
     private List<Work> GatherWorks(Integer SearchId){
         List<Work> works = new ArrayList<>();
-        String relatedQuery = "Select WorkId From SearchWork SearchId Where SearchId=?";
+        String relatedQuery = "Select WorkId From SearchWork Where SearchId=?";
         try 
         {   PreparedStatement stmt = _db.GetConnection().prepareStatement(relatedQuery);
             stmt.setInt(1, SearchId);
-            ResultSet rs = stmt.executeQuery(relatedQuery);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) 
             {
                 Integer workId = rs.getInt(1);

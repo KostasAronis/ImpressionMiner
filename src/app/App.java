@@ -66,7 +66,7 @@ public class App {
             menu.addItem(new MenuItem("Manage Keywords",this, "manageKeywords"));
             menu.addItem(new MenuItem("Manage Target Websites", this, "manageTargets"));
             menu.addItem(new menu.MenuItem("Start the search", this, "startTheSearch"));
-            menu.addItem(new menu.MenuItem("Start the search", this, "startTheSearch"));
+            menu.addItem(new menu.MenuItem("View statistics", this, "viewStatistics"));
             mainMenu=menu;
         }
         mainMenu.execute();
@@ -102,7 +102,7 @@ public class App {
         }
         System.out.println("Enter the id of a word to delete it or B to go back");
         String inputID = System.console().readLine();
-        if (inputID.toUpperCase()!="B") {
+        if (!inputID.toUpperCase().equals("B")) {
             try{
                 Integer id = Integer.parseInt(inputID);
                 if(wordRepo.Delete(id)){
@@ -145,7 +145,7 @@ public class App {
         }
         System.out.println("Enter the id of a target url to delete it or B to go back");
         String inputID = System.console().readLine();
-        if (inputID!="B") {
+        if (!inputID.toUpperCase().equals("B")) {
             try{
                 Integer id = Integer.parseInt(inputID);
                 if(targetWebsiteRepo.Delete(id)){
@@ -197,6 +197,19 @@ public class App {
         s.resume();
         menu.execute();
     }
+
+    public void viewStatistics(){
+        Menu menu = new Menu();
+        menu.setTitle("*** Statistics ***");
+        List<Search> searches = searchRepo.GetAll();
+        menu.addItem(new menu.MenuItem("Export to CSV", this, "exportCSV"));
+        menu.addItem(new MenuItem("MainMenu", this, "mainMenu"));
+        menu.execute();
+    }
+    public void exportCSV(){
+
+    }
+
     static Search GenerateSearch(List<TargetWebsite> targetWebsites, List<Word> words){
         List<Work> works = new ArrayList<Work>();
         for (TargetWebsite targetWebsite : targetWebsites) {
@@ -211,7 +224,7 @@ public class App {
             Work work = new Work(targetWebsite, workWords);
             works.add(work);
         }
-        Search s = new Search((java.sql.Date)new Date(), works);
+        Search s = new Search(new Date(), works);
         return s;
     }
 }
