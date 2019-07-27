@@ -36,32 +36,21 @@ public class App {
         "Apple",
         "Samsung"
     }));
+    private static List<TargetWebsite> targetUrlsDB = new ArrayList<TargetWebsite>();
+    private static List<Word> keywordsDB = new ArrayList<Word>();
+    private static IRepository<TargetWebsite> targetWebsiteRepo;
+    private static IRepository<Word> wordRepo;
+    private static IRepository<Work> workRepo;
+    private static IRepository<Search> searchRepo;
     public static void main(String[] args) throws Exception 
     {
-        //new App().mainMenu();
-        IRepository<TargetWebsite> targetWebsiteRepo = RepositoryFactory.GetRepository(TargetWebsite.class);
-        IRepository<Word> wordRepo = RepositoryFactory.GetRepository(Word.class);
-        IRepository<Work> workRepo = RepositoryFactory.GetRepository(Work.class);
-        IRepository<Search> searchRepo = RepositoryFactory.GetRepository(Search.class);
-        
-        Work work = new Work();
-        work.targetWebsite = new TargetWebsite(3,"https://www.in.gr");
-        List<Word> words = new ArrayList<Word>();
-        words.add(wordRepo.GetById(2));
-        words.add(wordRepo.GetById(1));
-        work.words = words;
-        
-        var getSpecificWork = workRepo.GetById(1);
-        var getAllWorks = workRepo.GetAll();
-
-        Search search = new Search();
-        search.works = new ArrayList<>(getAllWorks);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        search.timestamp = new Date();
-        //var searchInsert = searchRepo.Insert(search);
-        var searchGetBy = searchRepo.GetById(2);
-        var searchGetAll = searchRepo.GetAll();
-
+        targetWebsiteRepo = RepositoryFactory.GetRepository(TargetWebsite.class);
+        wordRepo = RepositoryFactory.GetRepository(Word.class);
+        workRepo = RepositoryFactory.GetRepository(Work.class);
+        searchRepo = RepositoryFactory.GetRepository(Search.class);
+        targetUrlsDB = targetWebsiteRepo.GetAll();
+        keywordsDB = wordRepo.GetAll();
+        new App().mainMenu();
     }
 
     Menu mainMenu;
@@ -76,6 +65,7 @@ public class App {
             menu.setTitle("Impression Miner Main Menu");
             menu.addItem(new MenuItem("Manage Keywords",this, "manageKeywords"));
             menu.addItem(new MenuItem("Manage Target Websites", this, "manageTargets"));
+            menu.addItem(new menu.MenuItem("Start the search", this, "startTheSearch"));
             menu.addItem(new menu.MenuItem("Start the search", this, "startTheSearch"));
             mainMenu=menu;
         }
@@ -95,13 +85,32 @@ public class App {
     public void addKeyword(){
         System.out.print("Enter a new word:");
         String input = System.console().readLine();
-        searchWords.add(input);
+        Word newWord = new Word(input);
+        Word newWordWithId = wordRepo.Insert(newWord);
+        keywordsDB.add(newWordWithId);
         manageKeywords();
     }
     public void showKeywords(){
+        if (keywordsDB.size()==0){
+            System.out.println("No keywords are currently stored in db.");
+            manageKeywords();
+            return;
+        }
         System.out.println("Current keywords are:");
-        for (String word : searchWords){
-            System.out.println(word);
+        for (Word word : keywordsDB){
+            System.out.println(word.id + " --- " + word.word);
+        }
+        System.out.println("Enter the id of a word to delete it or B to go back");
+        String inputID = System.console().readLine();
+        if (inputID.toUpperCase()!="B") {
+            try{
+                Integer id = Integer.parseInt(inputID);
+                if(wordRepo.Delete(id)){
+                    keywordsDB.removeIf(w->w.id==id);
+                }
+            } catch (Exception ex){
+                System.out.println("Incorrect id!");
+            }
         }
         manageKeywords();
     }
@@ -109,6 +118,9 @@ public class App {
         if(manageTargetsMenu==null){
             Menu menu = new Menu();
             menu.setTitle("Manage Target Websites");
+            menu.addItem(new MenuItem("Add Target",this, "addTarget"));
+            menu.addItem(new MenuItem("Show Targets",this, "showTargets"));
+            menu.addItem(new MenuItem("MainMenu", this, "mainMenu"));
             manageTargetsMenu=menu;
         }
         manageTargetsMenu.execute();
@@ -116,23 +128,54 @@ public class App {
     public void addTarget(){
         System.out.print("Enter a new target url:");
         String input = System.console().readLine();
-        urls.add(input);
-        manageKeywords();
+        TargetWebsite newTarget = new TargetWebsite(input);
+        TargetWebsite newTargetWithId = targetWebsiteRepo.Insert(newTarget);
+        targetUrlsDB.add(newTargetWithId);
+        manageTargets();
     }
     public void showTargets(){
-        System.out.println("Current target websites are:");
-        for (String url : urls){
-            System.out.println(url);
+        if (targetUrlsDB.size()==0){
+            System.out.println("No target urls are currently stored in db.");
+            manageTargets();
+            return;
         }
-        manageKeywords();
+        System.out.println("Current target websites are:");
+        for ( TargetWebsite target : targetUrlsDB ) {
+            System.out.println(target.getId() + " --- " + target.getUrl());
+        }
+        System.out.println("Enter the id of a target url to delete it or B to go back");
+        String inputID = System.console().readLine();
+        if (inputID!="B") {
+            try{
+                Integer id = Integer.parseInt(inputID);
+                if(targetWebsiteRepo.Delete(id)){
+                    targetUrlsDB.removeIf(t->t.getId()==id);
+                }
+            } catch (Exception ex){
+                System.out.println("Incorrect id!");
+            }
+        }
+        manageTargets();
     }
     Supervisor s;
     public void startTheSearch() 
     {
+        String err="";
+        if (keywordsDB.size() == 0 ){
+            err+="Cannot start a search without any keywords.";
+        }
+        if (targetUrlsDB.size() == 0 ){
+            err+="Cannot start a search without any target urls.";
+        }
+        if (err!=""){
+            System.out.println(err);
+            mainMenu.execute();
+            return;
+        }
         Menu menu = new Menu();
         menu.setTitle("*** Processing ***");
         menu.addItem(new menu.MenuItem("Pause", this, "pause"));
-        Search search = GenerateSearch(urls, searchWords, new SimpleWorkMaker(), new SimpleWordMaker());
+        Search search = GenerateSearch(targetUrlsDB, keywordsDB);
         Parser p = new Parser();
         Evaluator e = new Evaluator();
         s = new Supervisor(search, p, e);
@@ -154,21 +197,21 @@ public class App {
         s.resume();
         menu.execute();
     }
-    static Search GenerateSearch(List<String> urls, List<String> searchWords, IWorkFactory workMaker, IWordFactory wordMaker){
-        Search s = new Search();
+    static Search GenerateSearch(List<TargetWebsite> targetWebsites, List<Word> words){
         List<Work> works = new ArrayList<Work>();
-        for (String url : urls) {
-            TargetWebsite tw = new TargetWebsite(0, url);
-            List<Word> words = new ArrayList<Word>();
-            for (String searchWord : searchWords){
-                Word word = wordMaker.CreateWord(searchWord);
-                words.add(word);
+        for (TargetWebsite targetWebsite : targetWebsites) {
+            List<WorkWord> workWords = new ArrayList<>();
+            for (Word word : words){
+                WorkWord ww = new WorkWord();
+                ww.count=0;
+                ww.impression=0d;
+                ww.word = word.word;
+                workWords.add(ww);
             }
-            Work work = workMaker.CreateWork(tw, words);
+            Work work = new Work(targetWebsite, workWords);
             works.add(work);
         }
-        s.works=works;
-        s.timestamp= (java.sql.Date) new Date();
+        Search s = new Search((java.sql.Date)new Date(), works);
         return s;
     }
 }
