@@ -28,6 +28,8 @@ public class SqliteDatabase
                 CreateWordTable();
                 CreateWorkTable();
                 CreateSearchTable();
+                CreateWorkWordTable();
+                CreateSearchWorkTable();
             }
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -54,7 +56,7 @@ public class SqliteDatabase
         }
         stmt.close();
 
-        if (tableCount == 4)
+        if (tableCount == 6)
             return true;
         else
             return false;
@@ -79,8 +81,6 @@ public class SqliteDatabase
     {
         String query = "CREATE TABLE IF NOT EXISTS Word "
         + "(Id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        + "Count       INTEGER      ,"
-        + "Impression  REAL      ,"
         + "Word           TEXT      NOT NULL)";
         CreateTable(query);
     }
@@ -88,11 +88,32 @@ public class SqliteDatabase
     {
         String query = "CREATE TABLE IF NOT EXISTS Search "
         + "(Id              INTEGER     NOT NULL,"
-        + "Timestamp         DATE       NOT NULL,"
-        + "WorkId           INTEGER      NOT NULL , PRIMARY KEY(Id,WorkId) )";
+        + "Timestamp         DATE       NOT NULL )";
+        CreateTable(query);
+    }
+    private void CreateSearchWorkTable() {
+        String query = "CREATE TABLE IF NOT EXISTS SearchWork "
+        + "("
+        + "SearchId         INTEGER     NOT NULL,"
+        + "WorkId           INTEGER     NOT NULL,"
+        + "FOREIGN KEY(SearchId) REFERENCES Search(Id)"
+        + "FOREIGN KEY(WorkId) REFERENCES Work(Id)"+
+        ")";
         CreateTable(query);
     }
 
+    private void CreateWorkWordTable() {
+        String query = "CREATE TABLE IF NOT EXISTS WorkWord "
+        + "(Id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        + "WorkId         INTEGER     NOT NULL,"
+        + "Word         STRING     NOT NULL,"
+        + "Count       INTEGER      ,"
+        + "Impression  REAL      ,"
+        + "FOREIGN KEY(WordId) REFERENCES Word(Id)"
+        + "FOREIGN KEY(WorkId) REFERENCES Work(Id)"+
+        ")";
+        CreateTable(query);
+    }
     private void CreateTable(String query)
     {
         try 
