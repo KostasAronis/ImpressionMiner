@@ -34,6 +34,7 @@ public class SearchRepository implements IRepository<Search> {
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 Search search = ConvertToSearch(rs);
+                searches.add(search);
             }
             rs.close();
             stmt.close();

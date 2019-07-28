@@ -1,28 +1,26 @@
 package app;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import dbconnection.IRepository;
 import dbconnection.RepositoryFactory;
-import dbconnection.SearchRepository;
-import dbconnection.SqliteDatabase;
-import dbconnection.WordRepository;
-import dbconnection.WorkRepository;
 import menu.Menu;
 import menu.MenuItem;
-import models.*;
-import worker.Supervisor;
-import worker.Worker;
-import scraper.Parser;
+import models.Search;
+import models.TargetWebsite;
+import models.Word;
+import models.Work;
+import models.WorkWord;
 import scraper.Evaluator;
+import scraper.Parser;
+import statistics.Statistics;
+import worker.Supervisor;
 public class App {
+    /* Sample data
     private static List<String> urls = new ArrayList<String>(Arrays.asList(new String[]{ 
         "https://www.in.gr",
         "https://finance.yahoo.com/tech/",
@@ -36,17 +34,17 @@ public class App {
         "Apple",
         "Samsung"
     }));
+    */
     private static List<TargetWebsite> targetUrlsDB = new ArrayList<TargetWebsite>();
     private static List<Word> keywordsDB = new ArrayList<Word>();
     private static IRepository<TargetWebsite> targetWebsiteRepo;
     private static IRepository<Word> wordRepo;
-    private static IRepository<Work> workRepo;
     private static IRepository<Search> searchRepo;
     public static void main(String[] args) throws Exception 
     {
         targetWebsiteRepo = RepositoryFactory.GetRepository(TargetWebsite.class);
         wordRepo = RepositoryFactory.GetRepository(Word.class);
-        workRepo = RepositoryFactory.GetRepository(Work.class);
+        RepositoryFactory.GetRepository(Work.class);
         searchRepo = RepositoryFactory.GetRepository(Search.class);
         targetUrlsDB = targetWebsiteRepo.GetAll();
         keywordsDB = wordRepo.GetAll();
@@ -169,7 +167,7 @@ public class App {
         }
         if (err!=""){
             System.out.println(err);
-            mainMenu.execute();
+            mainMenu();
             return;
         }
         Menu menu = new Menu();
@@ -179,16 +177,20 @@ public class App {
         Parser p = new Parser();
         Evaluator e = new Evaluator();
         s = new Supervisor(search, p, e);
-        Thread t = new Thread(s);
-        t.start();
+        s.start();
         menu.execute();
+        s.join();
     }
     public void pause(){
-        Menu menu = new Menu();
-        menu.setTitle("*** Paused ***");
-        menu.addItem(new menu.MenuItem("Resume", this, "resume"));
-        s.pause();
-        menu.execute();
+        if (!s.done){
+            Menu menu = new Menu();
+            menu.setTitle("*** Paused ***");
+            menu.addItem(new menu.MenuItem("Resume", this, "resume"));
+            s.pause();
+            menu.execute();
+        } else {
+            mainMenu();
+        }
     }
     public void resume(){
         Menu menu = new Menu();
@@ -201,13 +203,37 @@ public class App {
     public void viewStatistics(){
         Menu menu = new Menu();
         menu.setTitle("*** Statistics ***");
-        List<Search> searches = searchRepo.GetAll();
-        menu.addItem(new menu.MenuItem("Export to CSV", this, "exportCSV"));
+        menu.addItem(new menu.MenuItem("Review a previous search", this, "searchReview"));
+        menu.addItem(new menu.MenuItem("Export all searches to CSV", this, "exportCSV"));
         menu.addItem(new MenuItem("MainMenu", this, "mainMenu"));
         menu.execute();
     }
     public void exportCSV(){
-
+        List<Search> searches = searchRepo.GetAll();
+        System.out.print("Insert a filename to write all data to csv: ");
+        String fileName = System.console().readLine();
+        System.out.print("This will take a while...");
+        Statistics.writeTimeTableInCSV(searches, fileName);
+    }
+    public void searchReview(){
+        List<Search> searches = searchRepo.GetAll();
+        Integer i = 0;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.ENGLISH);
+        for(Search s : searches){
+            System.out.println( s.id + ") date: " + dateFormat.format(s.timestamp));
+            i++;
+        }
+        System.out.println("Select the search you want to review: ");
+        String input = System.console().readLine();
+        try{
+            Integer id = Integer.parseInt(input);
+            Search search = searches.stream().filter(s -> s.id.equals(id)).findFirst().orElse(null);
+            for (String line : Statistics.getReportTable(search)){
+                System.out.println(line);
+            }
+        } catch (Exception ex){
+            System.out.println("Incorrect id!");
+        }
     }
 
     static Search GenerateSearch(List<TargetWebsite> targetWebsites, List<Word> words){

@@ -28,7 +28,7 @@ public class MenuItem
     //This method tell us if an item is Exit item
     public boolean isExitItem() { return this.isExitItem; }
     
-    void invoke() 
+    void invoke()
     {
         if (this.target == null) 
             return;
