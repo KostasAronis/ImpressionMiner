@@ -14,6 +14,7 @@ public class Worker implements Runnable{
     private IParser parser;
     private Object pauseLock;
     private Boolean paused;
+
     public Worker(IParser parser, IEvaluator evaluator, Work work, Object pauseLock){
         this.work=work;
         this.parser=parser;
@@ -21,10 +22,16 @@ public class Worker implements Runnable{
         this.pauseLock=pauseLock;
         this.paused=false;
     }
-    public void pause(){
+
+    //Pauses worker thread
+    public void pause()
+    {
         this.paused=true;
     }
-    public void resume(){
+
+    //Resumes worker thread
+    public void resume()
+    {
         synchronized (this.pauseLock) {
             paused = false;
             pauseLock.notifyAll(); // Unblocks thread
@@ -33,7 +40,9 @@ public class Worker implements Runnable{
 
     @Override
     public void run() {
-        try {
+        try 
+        {
+            //Finds the text of the website for each worker and searches for all the words that the worker holds inside this text
             String text = this.parser.getPageText(work.targetWebsite.getUrl());
             System.out.println("Parsed: "+ work.targetWebsite.getUrl());
             for(WorkWord word : work.words){
@@ -48,6 +57,7 @@ public class Worker implements Runnable{
         }
     }
 
+    @Deprecated
     public void run2() {
         try {
             String text = this.parser.getPageText(work.targetWebsite.getUrl());

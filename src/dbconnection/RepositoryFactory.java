@@ -13,6 +13,7 @@ public class RepositoryFactory
 {
      private static Map<Class, Class> repoRegistry = new HashMap<>();
 
+     //This method exist for creating and providing the right Instance repository depending on the clas stype(Factory for Repository)
      public static <T> IRepository<T> GetRepository(Class<T> classType) throws InstantiationException, IllegalAccessException
      {
           RegisterRepositories();
@@ -27,6 +28,7 @@ public class RepositoryFactory
           }
      }
 
+     //Register all repositories with their class models
      private static void RegisterRepositories()
      {
           repoRegistry.put(Work.class, WorkRepository.class);

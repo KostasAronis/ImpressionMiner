@@ -22,7 +22,7 @@ class EvaluationWeights{
             put("great", 5.0);
             put("terrible", -5.0);
             put("awesome", 10.0);
-            put("aweful", -10.0);
+            put("awful", -10.0);
         }
     };
     static Map<String,Double> wordΜultiplier=new HashMap<String,Double>()
@@ -44,6 +44,7 @@ class EvaluationWeights{
 
 public class Evaluator implements IEvaluator {
     
+    //Counts the given word appearances inside the given text
     @Override
     public Integer getWordCount(String text, String word) {
         Pattern pattern = Pattern.compile(word);
@@ -54,6 +55,8 @@ public class Evaluator implements IEvaluator {
         return count;
     }
 
+    //Returns a double number that simulates the "bad" or "good" meaning of a 
+    //word with the positive results to mean good and negative bad
     @Override
     public Double getImpression(String text, String word) {
         Double score=0.0;
@@ -64,6 +67,8 @@ public class Evaluator implements IEvaluator {
         }
         return score;
     }
+
+    //Gets all sentences that contains our word with regex pattern
     private List<String> getSentences(String text,String word){
         List<String> sentences = new ArrayList<String>();
         String regex = "[^.]* "+word+" [^.]*\\.";
@@ -73,12 +78,15 @@ public class Evaluator implements IEvaluator {
             sentences.add(matcher.group());
         return sentences;
     }
+
+    //Splits a sentence that contains our word into a list of words
     private List<String> getSentenceWords(String sentence){
         String[] words = sentence.split("\\W+"); // seperate the sentence into words
         List<String> sentenceWords = Arrays.asList(words);
         return sentenceWords;
     }
 
+    //calculates the words value inside the sentence depending on evalution weights that we declared previously
     private Double getSentenceValue(List<String> sentence,
                                     Map<String,Double> wordValue,
                                     Map<String,Double> wordΜultiplier,

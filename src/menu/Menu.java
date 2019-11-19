@@ -55,7 +55,8 @@ public class Menu
         {
             this.print();
             item = this.getUserInput();
-            item.invoke();
+            if(!item.isExitItem())
+                item.invoke();
         } 
         while (!item.isExitItem());
     }
@@ -105,7 +106,10 @@ public class Menu
         }
         catch (IOException ex) 
         {
-             ex.printStackTrace(); 
+            if(item == exitItem && this.isRootMenu)
+                System.out.println("Application Exit");
+            else
+                ex.printStackTrace(); 
         }
         finally 
         { 

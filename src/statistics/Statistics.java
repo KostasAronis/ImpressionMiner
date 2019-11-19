@@ -23,9 +23,11 @@ import models.Word;
 import models.Work;
 import models.WorkWord;
 
-public class Statistics {
+public class Statistics 
+{
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH);
 
+    //Creates a csv to the specified location with all search data
     public static boolean writeTimeTableInCSV(List<Search> searches, String fileName){
         if(searches.isEmpty()){
             return false;
@@ -34,6 +36,7 @@ public class Statistics {
         List<List<String>> rows = getTimeTableRows(timeData);
         return rowsToCSV(rows, fileName);
     }
+
     public static boolean rowsToCSV(List<List<String>>rows, String fileName){
         FileWriter csvWriter;
         try {
@@ -52,6 +55,8 @@ public class Statistics {
         }
         return true;
     }
+
+
     public static List<List<String>> getTimeTableRows(Map<String, Map<String, WorkWord>> timeData){
         List<List<String>> rows = new ArrayList<>();
         List<String> headers = new ArrayList<>();
@@ -81,6 +86,8 @@ public class Statistics {
         }
         return rows;
     }
+    
+
     public static Map<String, Map<String, WorkWord>> getTimeData(List<Search> searches){
         Collections.sort(searches,(s1, s2) -> s1.timestamp.compareTo(s2.timestamp));
         Map<String, Map<String, WorkWord>> timeData = new TreeMap<>();
@@ -133,6 +140,8 @@ public class Statistics {
         }
         return timeData;
     }
+    
+
     private static Date addDays(Date date, Integer days){
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
@@ -140,6 +149,7 @@ public class Statistics {
         return cal.getTime();
     }
 
+    //Creates a report table in console about a previous search
     public static List<String> getReportTable(Search s){
         Integer largestWord=0;
         Map<String, WorkWord> wordMap = Statistics.getSummary(s);
@@ -163,6 +173,8 @@ public class Statistics {
         table.add(rowSeperator);
         return table;
     }
+
+    //Creates a summary for each word for a previous search
     public static Map<String, WorkWord> getSummary(Search s){
         Map<String, WorkWord> wordMap = new HashMap<String, WorkWord>();
         for (Work w : s.works) {

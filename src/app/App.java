@@ -40,6 +40,7 @@ public class App {
     private static IRepository<TargetWebsite> targetWebsiteRepo;
     private static IRepository<Word> wordRepo;
     private static IRepository<Search> searchRepo;
+    private Supervisor s;
     public static void main(String[] args) throws Exception 
     {
         targetWebsiteRepo = RepositoryFactory.GetRepository(TargetWebsite.class);
@@ -155,7 +156,7 @@ public class App {
         }
         manageTargets();
     }
-    Supervisor s;
+    
     public void startTheSearch() 
     {
         String err="";
@@ -181,7 +182,10 @@ public class App {
         menu.execute();
         s.join();
     }
-    public void pause(){
+
+    //Shows the pause option when the search is running
+    public void pause()
+    {
         if (!s.done){
             Menu menu = new Menu();
             menu.setTitle("*** Paused ***");
@@ -192,7 +196,10 @@ public class App {
             mainMenu();
         }
     }
-    public void resume(){
+
+    //Shows the resume option when the search is running
+    public void resume()
+    {
         Menu menu = new Menu();
         menu.setTitle("*** Processing ***");
         menu.addItem(new menu.MenuItem("Pause", this, "pause"));
@@ -200,6 +207,7 @@ public class App {
         menu.execute();
     }
 
+    //Shows statistics options
     public void viewStatistics(){
         Menu menu = new Menu();
         menu.setTitle("*** Statistics ***");
@@ -208,6 +216,7 @@ public class App {
         menu.addItem(new MenuItem("MainMenu", this, "mainMenu"));
         menu.execute();
     }
+    
     public void exportCSV(){
         List<Search> searches = searchRepo.GetAll();
         System.out.print("Insert a filename to write all data to csv: ");
